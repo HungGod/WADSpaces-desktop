@@ -272,6 +272,8 @@ ENV __GL_SYNC_TO_VBLANK=0
 # Set default DISPLAY environment
 ENV DISPLAY=":20"
 
+# Anything above this line should always be kept the same between docker-selkies-glx-desktop and docker-selkies-egl-desktop
+
 # Default environment variables (default password is "mypasswd")
 ENV DISPLAY_SIZEW=1920
 ENV DISPLAY_SIZEH=1080
@@ -307,22 +309,145 @@ RUN cd /tmp && VIRTUALGL_VERSION="$(curl -fsSL "https://api.github.com/repos/Vir
     chmod -f u+s /usr/lib/libvglfaker.so /usr/lib/libvglfaker-nodl.so /usr/lib/libdlfaker.so /usr/lib/libgefaker.so; fi && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/debconf/* /var/log/* /tmp/* /var/tmp/*
 
+# Anything below this line should always be kept the same between docker-selkies-glx-desktop and docker-selkies-egl-desktop
 
 # Install KDE and other GUI packages
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    plasma-desktop \
-    plasma-workspace \
-    kwin-x11 \
-    kio \
-    plasma-integration \
-    kdegraphics-thumbnailers \
-    dolphin dolphin-plugins \
-    frameworkintegration \
-    breeze breeze-icon-theme breeze-cursor-theme \
-    dbus-x11 \
-    xdg-utils \
-    librsvg2-common libgdk-pixbuf2.0-bin \
-    && rm -rf /var/lib/apt/lists/* && \
+RUN mkdir -pm755 /etc/apt/preferences.d && echo "Package: firefox*\n\
+Pin: version 1:1snap*\n\
+Pin-Priority: -1" > /etc/apt/preferences.d/firefox-nosnap && \
+    mkdir -pm755 /etc/apt/trusted.gpg.d && curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x738BEB9321D1AAEC13EA9391AEBDF4819BE21867" | gpg --dearmor -o /etc/apt/trusted.gpg.d/mozillateam-ubuntu-ppa.gpg && \
+    mkdir -pm755 /etc/apt/sources.list.d && echo "deb https://ppa.launchpadcontent.net/mozillateam/ppa/ubuntu $(grep '^VERSION_CODENAME=' /etc/os-release | cut -d= -f2 | tr -d '\"') main" > "/etc/apt/sources.list.d/mozillateam-ubuntu-ppa-$(grep '^VERSION_CODENAME=' /etc/os-release | cut -d= -f2 | tr -d '\"').list" && \
+    apt-get update && apt-get install --no-install-recommends -y \
+        kde-baseapps \
+        plasma-desktop \
+        plasma-workspace \
+        adwaita-icon-theme-full \
+        appmenu-gtk3-module \
+        ark \
+        aspell \
+        aspell-en \
+        breeze \
+        breeze-cursor-theme \
+        breeze-gtk-theme \
+        breeze-icon-theme \
+        dbus-x11 \
+        debconf-kde-helper \
+        desktop-file-utils \
+        dolphin \
+        dolphin-plugins \
+        enchant-2 \
+        fcitx \
+        fcitx-frontend-gtk2 \
+        fcitx-frontend-gtk3 \
+        fcitx-frontend-qt5 \
+        fcitx-module-dbus \
+        fcitx-module-kimpanel \
+        fcitx-module-lua \
+        fcitx-module-x11 \
+        fcitx-tools \
+        fcitx-hangul \
+        fcitx-libpinyin \
+        fcitx-m17n \
+        fcitx-mozc \
+        fcitx-sayura \
+        fcitx-unikey \
+        filelight \
+        frameworkintegration \
+        gwenview \
+        haveged \
+        hunspell \
+        im-config \
+        kwrite \
+        kcalc \
+        kcharselect \
+        kdeadmin \
+        kde-config-fcitx \
+        kde-config-gtk-style \
+        kde-config-gtk-style-preview \
+        kdeconnect \
+        kdegraphics-thumbnailers \
+        kde-spectacle \
+        kdf \
+        kdialog \
+        kfind \
+        kget \
+        khotkeys \
+        kimageformat-plugins \
+        kinfocenter \
+        kio \
+        kio-extras \
+        kmag \
+        kmenuedit \
+        kmix \
+        kmousetool \
+        kmouth \
+        ksshaskpass \
+        ktimer \
+        kwin-addons \
+        kwin-x11 \
+        libdbusmenu-glib4 \
+        libdbusmenu-gtk3-4 \
+        libgail-common \
+        libgdk-pixbuf2.0-bin \
+        libgtk2.0-bin \
+        libgtk-3-bin \
+        libkf5baloowidgets-bin \
+        libkf5dbusaddons-bin \
+        libkf5iconthemes-bin \
+        libkf5kdelibs4support5-bin \
+        libkf5khtml-bin \
+        libkf5parts-plugins \
+        libqt5multimedia5-plugins \
+        librsvg2-common \
+        media-player-info \
+        okular \
+        okular-extra-backends \
+        plasma-browser-integration \
+        plasma-calendar-addons \
+        plasma-dataengines-addons \
+        plasma-discover \
+        plasma-integration \
+        plasma-runners-addons \
+        plasma-widgets-addons \
+        print-manager \
+        qapt-deb-installer \
+        qml-module-org-kde-runnermodel \
+        qml-module-org-kde-qqc2desktopstyle \
+        qml-module-qtgraphicaleffects \
+        qml-module-qt-labs-platform \
+        qml-module-qtquick-xmllistmodel \
+        qt5-gtk-platformtheme \
+        qt5-image-formats-plugins \
+        qt5-style-plugins \
+        qtspeech5-flite-plugin \
+        qtvirtualkeyboard-plugin \
+        software-properties-qt \
+        sonnet-plugins \
+        sweeper \
+        systemsettings \
+        ubuntu-drivers-common \
+        vlc \
+        vlc-plugin-access-extra \
+        vlc-plugin-notify \
+        vlc-plugin-samba \
+        vlc-plugin-skins2 \
+        vlc-plugin-video-splitter \
+        vlc-plugin-visualization \
+        xdg-user-dirs \
+        xdg-utils \
+        firefox \
+        transmission-qt && \
+    apt-get install --install-recommends -y \
+        libreoffice \
+        libreoffice-kf5 \
+        libreoffice-plasma \
+        libreoffice-style-breeze && \
+    # Ensure Firefox as the default web browser
+    xdg-settings set default-web-browser firefox.desktop && \
+    update-alternatives --set x-www-browser /usr/bin/firefox && \
+    # Install Google Chrome for supported architectures
+    if [ "$(dpkg --print-architecture)" = "amd64" ]; then cd /tmp && curl -o google-chrome-stable.deb -fsSL "https://dl.google.com/linux/direct/google-chrome-stable_current_$(dpkg --print-architecture).deb" && apt-get update && apt-get install --no-install-recommends -y ./google-chrome-stable.deb && rm -f google-chrome-stable.deb && sed -i '/^Exec=/ s/$/ --password-store=basic --in-process-gpu/' /usr/share/applications/google-chrome.desktop; fi && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/debconf/* /var/log/* /tmp/* /var/tmp/* && \
     # Fix KDE startup permissions issues in containers
     MULTI_ARCH=$(dpkg --print-architecture | sed -e 's/arm64/aarch64-linux-gnu/' -e 's/armhf/arm-linux-gnueabihf/' -e 's/riscv64/riscv64-linux-gnu/' -e 's/ppc64el/powerpc64le-linux-gnu/' -e 's/s390x/s390x-linux-gnu/' -e 's/i.*86/i386-linux-gnu/' -e 's/amd64/x86_64-linux-gnu/' -e 's/unknown/x86_64-linux-gnu/') && \
     cp -f /usr/lib/${MULTI_ARCH}/libexec/kf5/start_kdeinit /tmp/ && \
@@ -336,12 +461,14 @@ LockOnResume=false" > /etc/xdg/kscreenlockerrc && \
     echo "[Compositing]\n\
 Enabled=false" > /etc/xdg/kwinrc && \
     echo "[KDE]\n\
-SingleClick=true\n\
+SingleClick=false\n\
 \n\
 [KDE Action Restrictions]\n\
 action/lock_screen=false\n\
-logout=false" > /etc/xdg/kdeglobals 
-
+logout=false\n\
+\n\
+[General]\n\
+BrowserApplication=firefox.desktop" > /etc/xdg/kdeglobals
 # KDE environment variables
 ENV DESKTOP_SESSION=plasma
 ENV XDG_SESSION_DESKTOP=KDE
@@ -350,10 +477,19 @@ ENV XDG_SESSION_TYPE=x11
 ENV KDE_FULL_SESSION=true
 ENV KDE_SESSION_VERSION=5
 ENV KDE_APPLICATIONS_AS_SCOPE=1
+ENV KWIN_COMPOSE=N
+ENV KWIN_EFFECTS_FORCE_ANIMATIONS=0
+ENV KWIN_EXPLICIT_SYNC=0
+ENV KWIN_X11_NO_SYNC_TO_VBLANK=1
 # Use sudoedit to change protected files instead of using sudo on kwrite
-ENV SUDO_EDITOR=kate
+ENV SUDO_EDITOR=kwrite
 # Enable AppImage execution in containers
 ENV APPIMAGE_EXTRACT_AND_RUN=1
+# Set input to fcitx
+ENV GTK_IM_MODULE=fcitx
+ENV QT_IM_MODULE=fcitx
+ENV XIM=fcitx
+ENV XMODIFIERS="@im=fcitx"
 
 # Install latest Selkies (https://github.com/selkies-project/selkies) build, Python application, and web application, should be consistent with Selkies documentation
 ARG PIP_BREAK_SYSTEM_PACKAGES=1
@@ -411,72 +547,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 #    cd /tmp && curl -o selkies-js-interposer.deb -fsSL "https://github.com/selkies-project/selkies/releases/download/v${SELKIES_VERSION}/selkies-js-interposer_v${SELKIES_VERSION}_ubuntu$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '\"')_$(dpkg --print-architecture).deb" && apt-get update && apt-get install --no-install-recommends -y ./selkies-js-interposer.deb && rm -f selkies-js-interposer.deb && \
     apt-get clean && rm -rf /var/lib/apt/lists/* /var/cache/debconf/* /var/log/* /tmp/* /var/tmp/*
 
-
-SHELL ["/bin/sh", "-c"]
-USER 0
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    wget \
-    gpg \
-    ca-certificates
-
-# Download and install VS Code
-RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg && \
-    install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg && \
-    echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list && \
-    rm -f packages.microsoft.gpg && \
-    apt-get update && \
-    apt-get install -y code
-
-# Install Tiled
-RUN set -eux; \
-    TILED_VERSION=$(curl -fsSL "https://api.github.com/repos/mapeditor/tiled/releases/latest" | grep '"tag_name":' | sed -E 's/.*"v([^"]+)".*/\1/') && \
-    echo "Installing Tiled version: ${TILED_VERSION}" && \
-    curl -fsSL -o /tmp/Tiled.AppImage \
-        "https://github.com/mapeditor/tiled/releases/download/v${TILED_VERSION}/Tiled-${TILED_VERSION}_Linux_Qt-6_x86_64.AppImage" && \
-    chmod +x /tmp/Tiled.AppImage && \
-    mv /tmp/Tiled.AppImage /usr/local/bin/tiled
-
-# Install TexturePacker
-RUN set -eux; \
-    TP_VERSION=$(curl -fsSL "https://www.codeandweb.com/texturepacker/download" | \
-        grep -oP 'TexturePacker \K[0-9]+\.[0-9]+\.[0-9]+' | head -1) && \
-    echo "Found TexturePacker version: ${TP_VERSION}" && \
-    curl -fsSL -o /tmp/TexturePacker-${TP_VERSION}.deb \
-        https://www.codeandweb.com/download/texturepacker/${TP_VERSION}/TexturePacker-${TP_VERSION}.deb && \
-    apt-get install -y --no-install-recommends /tmp/TexturePacker-${TP_VERSION}.deb && \
-    rm -f /tmp/TexturePacker-${TP_VERSION}.deb && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install latest Cursor .deb by parsing API JSON
-RUN set -eux; \
-    apt-get update && apt-get install -y jq wget && \
-    echo "Fetching Cursor .deb download URL..." && \
-    CURSOR_DEB_URL=$(wget --user-agent="Mozilla/5.0" -qO- \
-        "https://www.cursor.com/api/download?platform=linux-x64&releaseTrack=stable" | \
-        jq -r '.debUrl') && \
-    echo "Downloading Cursor .deb from: ${CURSOR_DEB_URL}" && \
-    wget --user-agent="Mozilla/5.0" -O cursor.deb "${CURSOR_DEB_URL}" && \
-    apt-get install -y ./cursor.deb && \
-    rm cursor.deb && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
-SHELL ["/usr/bin/fakeroot", "--", "/bin/sh", "-c"]
-USER 1000
 # Install WADSpaces
-RUN git clone https://github.com/HungGod/WADSpaces /opt/WADSpaces && \
-    cd /opt/WADSpaces && \
-    pip3 install -r requirements.txt --break-system-packages
-
-COPY resources.json /opt/WADSpaces/packager/resources.json
-
-RUN cd /opt/WADSpaces && \
-    python3 packager/packager.py && \
-    rm /opt/WADSpaces/packager/resources.json
-
-# Install IntelligenceQuest 
-RUN mkdir -p /home/ubuntu/Desktop && \
-    git clone https://github.com/HungGod/IntelligenceQuest /home/ubuntu/Desktop/IntelligenceQuest
+RUN git clone https://github.com/HungGod/WADSpaces /opt/WADSpaces 
 
 # Copy scripts and configurations used to start the container with `--chown=1000:1000`
 COPY --chown=1000:1000 entrypoint.sh /etc/entrypoint.sh

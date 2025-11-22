@@ -1,4 +1,4 @@
-IMAGE ?= ghcr.io/wad/workspace-video-game-dev:latest
+IMAGE ?= ghcr.io/wad/workspace-v1:latest
 
 build:
 	docker build -t $(IMAGE) .

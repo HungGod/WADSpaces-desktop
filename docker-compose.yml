@@ -1,9 +1,9 @@
 services:
-  ws-video-game-dev:
-    container_name: ws-video-game-dev
-    hostname: ws-video-game-dev
+  workspace-v1:
+    container_name: workspace-v1
+    hostname: workspace-v1
     # Change tag `latest` to Ubuntu versions such as `24.04`, use a persistent tag such as `24.04-20210101010101` to persist a certain container version
-    image: ghcr.io/wad/workspace-video-game-dev:latest
+    image: ghcr.io/wad/workspace-v1:latest
     ports:
     - '8080:8080'
     # Internal TURN server settings
@@ -21,8 +21,10 @@ services:
           - driver: nvidia
             count: 1
             capabilities: [gpu]
-    #volumes:
-    #- '~/Desktop/Dev/IntelligenceQuest:/home/ubuntu/Desktop/IntelligenceQuest:z'
+    volumes:
+    - './blob-creation-tool/app-blob/app.blob:/home/ubuntu/blobs/app.blob:ro'
+    - './blob-creation-tool/binary-blob/binary.blob:/home/ubuntu/blobs/binary.blob:ro'
+    - './blob-creation-tool/userdata-blob/userdata.blob:/home/ubuntu/blobs/userdata.blob:ro'
     #- 'egl-cache-vol:/cache:z'
     #- 'egl-root-vol:/home/ubuntu:z'
     # Uncomment the below line to disable network isolation for WebRTC connectivity, display `:20` and `:21` should not be used in the host, may show an error if disallowed by the cluster
